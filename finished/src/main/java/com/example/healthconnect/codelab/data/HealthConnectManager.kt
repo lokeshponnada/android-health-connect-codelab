@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.mutableStateOf
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectClient.Companion.SDK_AVAILABLE
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -60,10 +61,13 @@ class HealthConnectManager(private val context: Context) {
   }
 
   fun checkAvailability() {
-    availability.value = when {
-      HealthConnectClient.isProviderAvailable(context) -> HealthConnectAvailability.INSTALLED
-      isSupported() -> HealthConnectAvailability.NOT_INSTALLED
-      else -> HealthConnectAvailability.NOT_SUPPORTED
+    availability.value =
+    if(HealthConnectClient.getSdkStatus(context) == SDK_AVAILABLE){
+      HealthConnectAvailability.INSTALLED
+    }else if(isSupported()){
+      HealthConnectAvailability.NOT_INSTALLED
+    }else{
+      HealthConnectAvailability.NOT_SUPPORTED
     }
   }
 
