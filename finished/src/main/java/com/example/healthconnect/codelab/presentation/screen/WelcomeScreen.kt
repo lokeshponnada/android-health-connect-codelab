@@ -15,6 +15,8 @@
  */
 package com.example.healthconnect.codelab.presentation.screen
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +34,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -45,6 +52,9 @@ import com.example.healthconnect.codelab.presentation.component.InstalledMessage
 import com.example.healthconnect.codelab.presentation.component.NotInstalledMessage
 import com.example.healthconnect.codelab.presentation.component.NotSupportedMessage
 import com.example.healthconnect.codelab.presentation.theme.HealthConnectTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Welcome screen shown when the app is first launched.
@@ -78,10 +88,12 @@ fun WelcomeScreen(
     }
   }
 
+  val mcontext = LocalContext.current
+
   Column(
     modifier = Modifier
-        .fillMaxSize()
-        .padding(32.dp),
+      .fillMaxSize()
+      .padding(32.dp),
     verticalArrangement = Arrangement.Top,
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
@@ -100,6 +112,43 @@ fun WelcomeScreen(
       HealthConnectAvailability.INSTALLED -> InstalledMessage()
       HealthConnectAvailability.NOT_INSTALLED -> NotInstalledMessage()
       HealthConnectAvailability.NOT_SUPPORTED -> NotSupportedMessage()
+    }
+    Spacer(modifier = Modifier.height(32.dp))
+    Button(
+      onClick = {
+        toastPermissions(mcontext)
+      },
+      modifier = Modifier.padding(16.dp),
+    ) {
+      Text("Show Granted Permissions", fontSize = 20.sp)
+    }
+    Spacer(modifier = Modifier.height(32.dp))
+    Button(
+      onClick = {
+        revokePermissions(mcontext)
+      },
+      modifier = Modifier.padding(16.dp),
+    ) {
+      Text("Revoke Permissions", fontSize = 20.sp)
+    }
+
+  }
+}
+
+ fun toastPermissions(context: Context){
+  CoroutineScope(Dispatchers.IO).launch {
+    val permissions = HealthConnectClient.getOrCreate(context).permissionController.getGrantedPermissions()
+    CoroutineScope(Dispatchers.Main).launch {
+      Toast.makeText(context,permissions.size.toString(),Toast.LENGTH_SHORT).show()
+    }
+  }
+}
+
+fun revokePermissions(context: Context){
+  CoroutineScope(Dispatchers.IO).launch {
+     HealthConnectClient.getOrCreate(context).permissionController.revokeAllPermissions()
+    CoroutineScope(Dispatchers.Main).launch {
+      Toast.makeText(context,"Permission Revoke Attempted",Toast.LENGTH_SHORT).show()
     }
   }
 }

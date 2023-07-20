@@ -41,21 +41,32 @@
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-
-      <!-- TODO: Add intent filter to handle permission rationale intent -->
-      <intent-filter>
-        <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
-      </intent-filter>
-
-            <intent-filter>
-              <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
-              <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
-            </intent-filter>
-
     </activity>
+
+      <!-- Create an activity to show rationale of Android 13 Health Connect permissions -->
+      <activity
+          android:name=".PermissionsRationaleActivity"
+          android:exported="true">
+        <intent-filter>
+          <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+        </intent-filter>
+      </activity>
+
+    <!-- Create an activity alias to show rationale of Android 14 Health Connect permissions -->
+      <activity-alias
+          android:name="ViewPermissionUsageActivity"
+          android:exported="true"
+          android:targetActivity=".PermissionsRationaleActivity"
+          android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+        <intent-filter>
+          <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+          <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+        </intent-filter>
+      </activity-alias>
+
   </application>
 
-  <!-- TODO: declare Health Connect visibility -->
+  <!-- Declare the Health Connect package name to initialize the client -->
   <queries>
     <package android:name="com.google.android.apps.healthdata" />
   </queries>
